@@ -139,7 +139,7 @@ public class FlutterViewContainerManager implements IContainerManager {
             mOnResults.put(currentTopRecord.uniqueId(),onResult);
         }
 
-        FlutterBoost.instance().platform().openContainer(context,url,urlParams,requestCode,exts);
+        FlutterBoost.instance().platform().openContainer(context,url,urlParams,requestCode,exts,onResult);
     }
 
     IContainerRecord closeContainer(String uniqueId, Map<String, Object> result,Map<String,Object> exts) {
@@ -246,7 +246,7 @@ public class FlutterViewContainerManager implements IContainerManager {
         }
     }
 
-    interface OnResult {
+    public static interface OnResult {
         void onResult(Map<String,Object> result);
     }
 }

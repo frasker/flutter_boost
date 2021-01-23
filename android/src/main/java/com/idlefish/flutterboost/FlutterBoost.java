@@ -293,8 +293,9 @@ public class FlutterBoost {
                     return ConfigBuilder.this.initialRoute;
                 }
 
-                public void openContainer(Context context, String url, Map<String, Object> urlParams, int requestCode, Map<String, Object> exts) {
-                    router.openContainer(context, url, urlParams, requestCode, exts);
+                @Override
+                public void openContainer(Context context, String url, Map<String, Object> urlParams, int requestCode, Map<String, Object> exts, FlutterViewContainerManager.OnResult onResult) {
+                    router.openContainer(context, url, urlParams, requestCode, exts, onResult);
                 }
 
 

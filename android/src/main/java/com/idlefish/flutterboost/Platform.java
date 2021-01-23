@@ -32,7 +32,7 @@ public abstract class Platform {
 
     public abstract Application getApplication();
 
-    public abstract void openContainer(Context context, String url, Map<String, Object> urlParams, int requestCode, Map<String, Object> exts);
+    public abstract void openContainer(Context context, String url, Map<String, Object> urlParams, int requestCode, Map<String, Object> exts, FlutterViewContainerManager.OnResult onResult);
 
     public abstract int whenEngineStart();
 
