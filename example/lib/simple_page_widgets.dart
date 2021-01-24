@@ -58,7 +58,7 @@ class _FirstRouteWidgetState extends State<FirstRouteWidget>{
                 child: Text('Open native page'),
                 onPressed: () {
                   print("open native page!");
-                  FlutterBoost.singleton.open("native").then((Map<dynamic,dynamic> value) {
+                  FlutterBoost.singleton.openFlutterContainer("native").then((Map<dynamic,dynamic> value) {
                     print(
                         "call me when page is finished. did receive native route result $value");
                   });
@@ -68,7 +68,7 @@ class _FirstRouteWidgetState extends State<FirstRouteWidget>{
                 child: Text('Open FF route'),
                 onPressed: () {
                   print("open FF page!");
-                  FlutterBoost.singleton.open("firstFirst").then((Map value) {
+                  FlutterBoost.singleton.openFlutterContainer("firstFirst").then((Map value) {
                     print(
                         "call me when page is finished. did receive FF route result $value");
                   });
@@ -78,7 +78,7 @@ class _FirstRouteWidgetState extends State<FirstRouteWidget>{
                 child: Text('Open second route1'),
                 onPressed: () {
                   print("open second page!");
-                  FlutterBoost.singleton.open("second").then((Map<dynamic,dynamic> value) {
+                  FlutterBoost.singleton.openFlutterContainer("second").then((Map<dynamic,dynamic> value) {
                     print(
                         "call me when page is finished. did receive second route result $value");
                   });
@@ -89,7 +89,7 @@ class _FirstRouteWidgetState extends State<FirstRouteWidget>{
                   child: Text('Present second stateful route'),
                   onPressed: () {
                     print("Present second stateful page!");
-                    FlutterBoost.singleton.open("secondStateful",urlParams:<String,dynamic>{"present":true}).then((Map value) {
+                    FlutterBoost.singleton.openFlutterContainer("secondStateful",urlParams:<String,dynamic>{"present":true}).then((Map value) {
                       print(
                           "call me when page is finished. did receive second stateful route result $value");
                     });
@@ -99,7 +99,7 @@ class _FirstRouteWidgetState extends State<FirstRouteWidget>{
                   child: Text('Present second route'),
                   onPressed: () {
                     print("Present second page!");
-                    FlutterBoost.singleton.open("second",urlParams:<String,dynamic>{"present":true}).then((Map<dynamic,dynamic> value) {
+                    FlutterBoost.singleton.openFlutterContainer("second",urlParams:<String,dynamic>{"present":true}).then((Map<dynamic,dynamic> value) {
                       print(
                           "call me when page is finished. did receive second route result $value");
                     });
@@ -109,7 +109,7 @@ class _FirstRouteWidgetState extends State<FirstRouteWidget>{
                 RaisedButton(
                   child: Text('Flutter to Flutter with Animation'),
                   onPressed: () {
-                    FlutterBoost.singleton.open("f2f_first").then((Map<dynamic,dynamic> value) {
+                    FlutterBoost.singleton.openFlutterContainer("f2f_first").then((Map<dynamic,dynamic> value) {
                       print(
                           "call me when page is finished. did receive second route result $value");
                     });
@@ -173,7 +173,7 @@ class _FirstFirstRouteWidgetState extends State<FirstFirstRouteWidget>{
           onPressed: () {
 
             print("open first page again!");
-            FlutterBoost.singleton.open("first").then((Map value){
+            FlutterBoost.singleton.openFlutterContainer("first").then((Map value){
               print("did receive first route result");
               print("did receive first route result $value");
             });
@@ -204,7 +204,7 @@ class _EmbeddedFirstRouteWidgetState extends State<EmbeddedFirstRouteWidget> {
           child: Text('Open second route2'),
           onPressed: () {
             print("open second page!");
-            FlutterBoost.singleton.open("second").then((Map<dynamic,dynamic> value) {
+            FlutterBoost.singleton.openFlutterContainer("second").then((Map<dynamic,dynamic> value) {
               print(
                   "call me when page is finished. did receive second route result $value");
             });
@@ -291,7 +291,7 @@ class TabRouteWidget extends StatelessWidget {
       body: Center(
         child: RaisedButton(
           onPressed: () {
-            FlutterBoost.singleton.open("second");
+            FlutterBoost.singleton.openFlutterContainer("second");
           },
           child: Text('Open second route3'),
         ),
@@ -312,7 +312,7 @@ class PlatformRouteWidget extends StatelessWidget {
           child: TextView(),
           onPressed: () {
             print("open second page!");
-            FlutterBoost.singleton.open("second").then((Map<dynamic,dynamic> value) {
+            FlutterBoost.singleton.openFlutterContainer("second").then((Map<dynamic,dynamic> value) {
               print(
                   "call me when page is finished. did receive second route result $value");
             });
@@ -400,7 +400,7 @@ class _FlutterRouteWidgetState extends State<FlutterRouteWidget> {
                   ///后面的参数会在native的IPlatform.startActivity方法回调中拼接到url的query部分。
                   ///例如：sample://nativePage?aaa=bbb
                   onTap: () => FlutterBoost.singleton
-                      .open("sample://nativePage", urlParams: <String,dynamic>{
+                      .openFlutterContainer("sample://nativePage", urlParams: <String,dynamic>{
                     "query": {"aaa": "bbb"}
                   }),
                 ),
@@ -417,7 +417,7 @@ class _FlutterRouteWidgetState extends State<FlutterRouteWidget> {
                   ///后面的参数会在native的IPlatform.startActivity方法回调中拼接到url的query部分。
                   ///例如：sample://nativePage?aaa=bbb
                   onTap: () => FlutterBoost.singleton
-                      .open("first", urlParams: <String,dynamic>{
+                      .openFlutterContainer("first", urlParams: <String,dynamic>{
                     "query": {"aaa": "bbb"}
                   }),
                 ),
@@ -434,7 +434,7 @@ class _FlutterRouteWidgetState extends State<FlutterRouteWidget> {
                   ///后面的参数会在native的IPlatform.startActivity方法回调中拼接到url的query部分。
                   ///例如：sample://nativePage?aaa=bbb
                   onTap: () => FlutterBoost.singleton
-                      .open("second", urlParams:<String,dynamic> {
+                      .openFlutterContainer("second", urlParams:<String,dynamic> {
                     "query": {"aaa": "bbb"}
                   }),
                 ),
@@ -451,7 +451,7 @@ class _FlutterRouteWidgetState extends State<FlutterRouteWidget> {
                   ///后面的参数会在native的IPlatform.startActivity方法回调中拼接到url的query部分。
                   ///例如：sample://nativePage?aaa=bbb
                   onTap: () => FlutterBoost.singleton
-                      .open("tab", urlParams:<String,dynamic> {
+                      .openFlutterContainer("tab", urlParams:<String,dynamic> {
                     "query": {"aaa": "bbb"}
                   }),
                 ),
@@ -468,7 +468,7 @@ class _FlutterRouteWidgetState extends State<FlutterRouteWidget> {
                   ///后面的参数会在native的IPlatform.startActivity方法回调中拼接到url的query部分。
                   ///例如：sample://nativePage?aaa=bbb
                   onTap: () => FlutterBoost.singleton
-                      .open("sample://flutterPage", urlParams:<String,dynamic> {
+                      .openFlutterContainer("sample://flutterPage", urlParams:<String,dynamic> {
                     "query": {"aaa": "bbb"}
                   }),
                 ),
@@ -511,7 +511,7 @@ class _FlutterRouteWidgetState extends State<FlutterRouteWidget> {
                         style: TextStyle(fontSize: 22.0, color: Colors.black),
                       )),
                   onTap: () => FlutterBoost.singleton
-                      .open("sample://flutterFragmentPage"),
+                      .openFlutterContainer("sample://flutterFragmentPage"),
                 ),
               ],
             ),
@@ -562,7 +562,7 @@ class FragmentRouteWidget extends StatelessWidget {
                   'open native page',
                   style: TextStyle(fontSize: 22.0, color: Colors.black),
                 )),
-            onTap: () => FlutterBoost.singleton.open("sample://nativePage"),
+            onTap: () => FlutterBoost.singleton.openFlutterContainer("sample://nativePage"),
           ),
           InkWell(
             child: Container(
@@ -573,7 +573,7 @@ class FragmentRouteWidget extends StatelessWidget {
                   'open flutter page',
                   style: TextStyle(fontSize: 22.0, color: Colors.black),
                 )),
-            onTap: () => FlutterBoost.singleton.open("sample://flutterPage"),
+            onTap: () => FlutterBoost.singleton.openFlutterContainer("sample://flutterPage"),
           ),
           InkWell(
             child: Container(
@@ -585,7 +585,7 @@ class FragmentRouteWidget extends StatelessWidget {
                   style: TextStyle(fontSize: 22.0, color: Colors.black),
                 )),
             onTap: () =>
-                FlutterBoost.singleton.open("sample://flutterFragmentPage"),
+                FlutterBoost.singleton.openFlutterContainer("sample://flutterFragmentPage"),
           )
         ],
       ),

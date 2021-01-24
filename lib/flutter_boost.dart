@@ -42,19 +42,18 @@ export 'container/container_coordinator.dart' show BoostRouteSettings;
 
 typedef Widget PageBuilder(String pageName, Map params, String uniqueId);
 
-typedef Route PrePushRoute(String url, String uniqueId, Map params,
-    Route route);
+typedef Route PrePushRoute(
+    String url, String uniqueId, Map params, Route route);
 
-typedef void PostPushRoute(String url, String uniqueId, Map params, Route route,
-    Future result);
+typedef void PostPushRoute(
+    String url, String uniqueId, Map params, Route route, Future result);
 
 typedef Route FlutterBoostRouteBuilder(Widget widget);
-
 
 class FlutterBoost {
   static final FlutterBoost _instance = FlutterBoost();
   final GlobalKey<ContainerManagerState> containerManagerKey =
-  GlobalKey<ContainerManagerState>();
+      GlobalKey<ContainerManagerState>();
   final ObserversHolder _observersHolder = ObserversHolder();
   final BoostChannel _boostChannel = BoostChannel();
 
@@ -84,14 +83,15 @@ class FlutterBoost {
     });
   }
 
-  static TransitionBuilder init({TransitionBuilder builder,
-    PrePushRoute prePush,
-    PostPushRoute postPush}) {
+  static TransitionBuilder init(
+      {TransitionBuilder builder,
+      PrePushRoute prePush,
+      PostPushRoute postPush}) {
     if (Platform.isAndroid) {
       onPageStart();
     } else if (Platform.isIOS) {
       assert(() {
-            () async {
+        () async {
           onPageStart();
         }();
         return true;
@@ -138,26 +138,16 @@ class FlutterBoost {
     ContainerCoordinator.singleton.registerRouteSettingsBuilder(builder);
   }
 
-  Future<Map<dynamic, dynamic>> open(String url,
-      {Map<String, dynamic> urlParams,
-        Map<String, dynamic> exts}) {
-    Map<String, dynamic> properties = new Map<String, dynamic>();
-    properties["url"] = url;
-    properties["urlParams"] = urlParams;
-    properties["exts"] = exts;
-    return channel.invokeMethod<Map<dynamic, dynamic>>('openPage', properties);
-  }
-
-
-  /**
-   *
-   * when flutter page->flutter page,do not open the new Activity Container
-   *
-   **/
-  Future<Map<dynamic, dynamic>> openInCurrentContainer(String url,
-      {Map<String, dynamic> urlParams,
-        Map<String, dynamic> exts,
-        FlutterBoostRouteBuilder routeBuilder}) {
+  ///
+  /// when flutter page->flutter page,do not open the new Activity Container
+  ///
+  ///
+  Future<Map<dynamic, dynamic>> openInCurrentContainer(
+    String url, {
+    Map<String, dynamic> urlParams,
+    Map<String, dynamic> exts,
+    FlutterBoostRouteBuilder routeBuilder,
+  }) {
     final BoostRouteSettings routeSettings = ContainerCoordinator.singleton
         .createRouteSettings(url, urlParams: urlParams, exts: exts);
 
@@ -165,39 +155,32 @@ class FlutterBoost {
         routeSettings.name, routeSettings.params, routeSettings.uniqueId);
 
     if (page == null) {
-      return open(url, urlParams: urlParams, exts: exts);
+      return openFlutterContainer(url, urlParams: urlParams, exts: exts);
     }
 
     final Route<Map<dynamic, dynamic>> route = routeBuilder != null
         ? routeBuilder(page)
         : defaultRoute(page, routeSettings);
 
-    GlobalRouteSettingsManager.instance.addSettings(route, routeSettings);
-
-    FlutterBoost.containerManager?.onstageContainer?.multipleRouteMode = true;
     return FlutterBoost.containerManager?.onstageContainer?.push(route);
   }
 
-
-  Route<Map<dynamic, dynamic>> defaultRoute(Widget page,
-      BoostRouteSettings settings) {
-    RouteSettings routeSettings = new RouteSettings(
-        name: settings.name, arguments: settings.params);
+  Route<Map<dynamic, dynamic>> defaultRoute(
+      Widget page, BoostRouteSettings settings) {
+    final RouteSettings routeSettings = RouteSettings(name: settings.name, arguments: settings.params);
     if (Platform.isIOS) {
       return CupertinoPageRoute<Map<dynamic, dynamic>>(
-          settings: routeSettings,
-          builder: (BuildContext context) => page
-      );
+          settings: routeSettings, builder: (BuildContext context) => page);
     }
     return PageRouteBuilder(
         transitionDuration: Duration(milliseconds: 300),
         settings: routeSettings,
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          var offsetAnimation = Tween<Offset>(
-              begin: Offset(1.0, 0.0), end: Offset(0.0, 0.0))
-              .animate(
-              CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn));
+          var offsetAnimation =
+              Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset(0.0, 0.0))
+                  .animate(CurvedAnimation(
+                      parent: animation, curve: Curves.fastOutSlowIn));
           return SlideTransition(
             position: offsetAnimation,
             child: child,
@@ -205,77 +188,47 @@ class FlutterBoost {
         });
   }
 
-  /**
-   * close flutter page but not close container if there has more than one page in contaienr
-   */
-  bool closeInCurrentContainer<T extends Object>([T result]) {
+  Future<Map<dynamic, dynamic>> openFlutterContainer(String url,
+      {Map<String, dynamic> urlParams, Map<String, dynamic> exts}) {
+    final Map<String, dynamic> properties = <String, dynamic>{};
+    properties['url'] = url;
+    properties['urlParams'] = urlParams;
+    properties['exts'] = exts;
+    return channel.invokeMethod<Map<dynamic, dynamic>>('openPage', properties);
+  }
+
+  Future<bool> close(String uniqueId,
+      {Map<String, dynamic> result, Map<String, dynamic> exts}) {
+    final bool canPop =
+        FlutterBoost.containerManager?.onstageContainer?.canPop() ?? false;
+    if (canPop) {
+      return Future<bool>.value(_closeInCurrentContainer(result));
+    }
+    return closeFlutterContainer(uniqueId, result: result, exts: exts);
+  }
+
+  /// close flutter page but not close container if there has more than one page in contaienr
+  bool _closeInCurrentContainer<T extends Object>([T result]) {
     return FlutterBoost.containerManager?.onstageContainer?.pop(result);
   }
 
-  Future<bool> close(String id,
+  Future<bool> closeFlutterContainer(String uniqueId,
       {Map<String, dynamic> result, Map<String, dynamic> exts}) {
-    //判断当前onStage的容器是不是通过openInCurrentContainer打开过界面
-    if (FlutterBoost.containerManager?.onstageContainer?.multipleRouteMode ??
-        false) {
-      return Future.value(closeInCurrentContainer(result));
+    final BoostContainerSettings settings = containerManager?.onstageSettings;
+    final Map<String, dynamic> properties = <String, dynamic>{};
+    exts ??= <String, dynamic>{};
+    exts['params'] = settings.params;
+    if (!exts.containsKey('animated')) {
+      exts['animated'] = true;
     }
-
-    return closeInternal(id, result: result, exts: exts);
-  }
-
-  Future<bool> closeInternal(String id,
-      {Map<String, dynamic> result, Map<String, dynamic> exts}) {
-    assert(id != null);
-
-    BoostContainerSettings settings = containerManager?.onstageSettings;
-    Map<String, dynamic> properties = new Map<String, dynamic>();
-
-    if (exts == null) {
-      exts = Map<String, dynamic>();
-    }
-
-    exts["params"] = settings.params;
-
-    if (!exts.containsKey("animated")) {
-      exts["animated"] = true;
-    }
-
-    properties["uniqueId"] = id;
-
+    properties['uniqueId'] = uniqueId;
     if (result != null) {
-      properties["result"] = result;
+      properties['result'] = result;
     }
-
     if (exts != null) {
-      properties["exts"] = exts;
+      properties['exts'] = exts;
     }
     return channel.invokeMethod<bool>('closePage', properties);
-  }
-
-  Future<bool> closeCurrent(
-      {Map<String, dynamic> result, Map<String, dynamic> exts}) {
-    BoostContainerSettings settings = containerManager?.onstageSettings;
-    if (exts == null) {
-      exts = Map<String, dynamic>();
-    }
-    exts["params"] = settings.params;
-    if (!exts.containsKey("animated")) {
-      exts["animated"] = true;
-    }
-    return close(settings.uniqueId, result: result, exts: exts);
-  }
-
-  Future<bool> closeByContext(BuildContext context,
-      {Map<String, dynamic> result, Map<String, dynamic> exts}) {
-    BoostContainerSettings settings = containerManager?.onstageSettings;
-    if (exts == null) {
-      exts = Map<String, dynamic>();
-    }
-    exts["params"] = settings.params;
-    if (!exts.containsKey("animated")) {
-      exts["animated"] = true;
-    }
-    return close(settings.uniqueId, result: result, exts: exts);
   }
 
   ///register for Container changed callbacks
@@ -284,7 +237,7 @@ class FlutterBoost {
 
   ///register for Container lifecycle callbacks
   VoidCallback addBoostContainerLifeCycleObserver(
-      BoostContainerLifeCycleObserver observer) =>
+          BoostContainerLifeCycleObserver observer) =>
       _observersHolder.addObserver<BoostContainerLifeCycleObserver>(observer);
 
   ///unregister for Container changed callbacks
@@ -293,8 +246,9 @@ class FlutterBoost {
 
   ///unregister for Container lifecycle callbacks
   void removeBoostContainerLifeCycleObserver(
-      BoostContainerLifeCycleObserver observer) =>
-      _observersHolder.removeObserver<BoostContainerLifeCycleObserver>(observer);
+          BoostContainerLifeCycleObserver observer) =>
+      _observersHolder
+          .removeObserver<BoostContainerLifeCycleObserver>(observer);
 
   ///register callbacks for Navigators push & pop
   void addBoostNavigatorObserver(NavigatorObserver observer) =>
@@ -303,16 +257,4 @@ class FlutterBoost {
   ///unregister callbacks for Navigators push & pop
   void removeBoostNavigatorObserver(NavigatorObserver observer) =>
       ContainerNavigatorObserver.boostObservers.remove(observer);
-
-  BoostRouteSettings getBoostRouteSettings(Route route) {
-    return GlobalRouteSettingsManager.instance.getSettings(route);
-  }
-
-  BoostRouteSettings getCurrentBoostRouteSettings() {
-    Route route = FlutterBoost?.containerManager?.onstageContainer?.topRoute;
-    if (route != null) {
-      return GlobalRouteSettingsManager.instance.getSettings(route);
-    }
-    return null;
-  }
 }

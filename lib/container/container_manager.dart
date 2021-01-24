@@ -328,12 +328,13 @@ class ContainerManagerState extends State<BoostContainerManager> {
 }
 
 class _ContainerOverlayEntry extends OverlayEntry {
-  bool _removed = false;
   _ContainerOverlayEntry(BoostContainer container)
       : super(
             builder: (BuildContext ctx) =>  HeroControllerScope.none(child: container),
             opaque: true,
             maintainState: true);
+
+  bool _removed = false;
 
   @override
   void remove() {

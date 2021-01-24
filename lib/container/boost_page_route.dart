@@ -53,24 +53,6 @@ class BoostPageRoute<T> extends MaterialPageRoute<T> {
       : super(
             builder: (BuildContext context) => Stub(stubKey, builder(context)),
             settings: settings);
-
-  static BoostPageRoute<T> of<T>(BuildContext context) {
-    final Route<T> route = ModalRoute.of(context);
-    if (route != null && route is BoostPageRoute<T>) {
-      return route;
-    } else {
-      throw Exception('not in a BoostPageRoute');
-    }
-  }
-
-  static BoostPageRoute<T> tryOf<T>(BuildContext context) {
-    final Route<T> route = ModalRoute.of(context);
-    if (route != null && route is BoostPageRoute<T>) {
-      return route;
-    } else {
-      return null;
-    }
-  }
 }
 
 @immutable

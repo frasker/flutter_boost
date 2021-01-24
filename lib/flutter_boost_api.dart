@@ -47,7 +47,7 @@ class FlutterBoostAPI {
       return Future<Map<dynamic, dynamic>>.value(<dynamic, dynamic>{});
     }
 
-    return FlutterBoost.singleton.open(url, urlParams: urlParams, exts: exts);
+    return FlutterBoost.singleton.openFlutterContainer(url, urlParams: urlParams, exts: exts);
   }
 
   bool close<T extends Object>([T result]) {

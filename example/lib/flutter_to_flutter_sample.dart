@@ -25,7 +25,7 @@ class F2FFirstPageState extends State<F2FFirstPage>{
             RaisedButton(
               child: Text('Open second with native container'),
               onPressed: () {
-                FlutterBoost.singleton.open("f2f_second");
+                FlutterBoost.singleton.openFlutterContainer("f2f_second");
               },
             ),
             RaisedButton(
