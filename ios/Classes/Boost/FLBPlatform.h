@@ -49,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)open:(NSString *)url
    urlParams:(NSDictionary *)urlParams
         exts:(NSDictionary *)exts
-      completion:(void (^)(BOOL finished))completion;
+onPageFinished:(void (^)(NSDictionary *))resultCallback
+  completion:(void (^)(BOOL finished))completion;
 
 /**
  * 基于Native平台实现present页面打开，Dart层的页面打开能力依赖于这个函数实现；Native或者Dart侧不建议直接使用这个函数。应直接使用FlutterBoost封装的函数

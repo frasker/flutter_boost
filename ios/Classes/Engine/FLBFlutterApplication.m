@@ -209,6 +209,7 @@
         [self.platform open:url
                   urlParams:urlParams
                        exts:exts
+                onPageFinished:resultCallback
                  completion:completion];
     }
 }
