@@ -5,7 +5,6 @@ import android.app.Activity;
 import androidx.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,7 +36,8 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
 
 
     private static final String TAG = "FlutterActivityAndFragmentDelegate";
-    private  static int ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE=0;
+    private static int ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTIVITY_HASH_CODE =0;
+    private static int ACTIVITY_ENTRY_HASH_CODE=0;
     @NonNull
     private Host host;
     @Nullable
@@ -57,6 +57,9 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
 
     public FlutterActivityAndFragmentDelegate(@NonNull Host host) {
         this.host = host;
+        if (FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE == 0) {
+            FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE = host.getActivity().hashCode();
+        }
     }
 
     public void release() {
@@ -175,6 +178,18 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
         // behavior we are able to move this blocking logic to after the Activity's launch.
         // TODO(mattcarroll): figure out how to avoid blocking the MAIN thread when connecting a surface
 
+        if (host.shouldAttachEngineToActivity()) {
+            if(ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTIVITY_HASH_CODE ==0||
+                    ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTIVITY_HASH_CODE !=this.host.getActivity().hashCode()){
+                flutterEngine.getActivityControlSurface().detachFromActivity();
+                flutterEngine.getActivityControlSurface().attachToActivity(
+                        host.getActivity(),
+                        host.getLifecycle()
+                );
+                ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTIVITY_HASH_CODE =this.host.getActivity().hashCode();
+            }
+        }
+        
     }
 
 
@@ -186,8 +201,6 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
         Log.v(TAG, "onResume()");
         ensureAlive();
         flutterEngine.getLifecycleChannel().appIsResumed();
-
-
     }
 
 
@@ -237,12 +250,16 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
         }
 
         if (host.shouldAttachEngineToActivity()) {
-            // Notify plugins that they are no longer attached to an Activity.
-            Log.v(TAG, "Detaching FlutterEngine from the Activity that owns this Fragment.");
-            if (host.getActivity().isChangingConfigurations()) {
-                flutterEngine.getActivityControlSurface().detachFromActivityForConfigChanges();
-            } else {
-                flutterEngine.getActivityControlSurface().detachFromActivity();
+            if (FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE == this.host.getActivity().hashCode()) {
+                if(ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTIVITY_HASH_CODE !=0||
+                        ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTIVITY_HASH_CODE ==this.host.getActivity().hashCode()){
+                    if (host.getActivity().isChangingConfigurations()) {
+                        flutterEngine.getActivityControlSurface().detachFromActivityForConfigChanges();
+                    } else {
+                        flutterEngine.getActivityControlSurface().detachFromActivity();
+                    }
+                }
+                FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE = 0;
             }
         }
         Utils.fixInputMethodManagerLeak(host.getActivity());
